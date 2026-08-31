@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Usuarios Registrados | Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-table-container {
+        max-width: 1200px;
+        margin: 3rem auto;
+        padding: 2rem;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 2rem;
+    }
+    .admin-table th, .admin-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    .admin-table th {
+        background-color: var(--secondary-color);
+    }
+    .back-btn {
+        margin-bottom: 1rem;
+        display: inline-block;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-table-container">
+    <a href="{{ url_for('admin_dashboard') }}" class="back-btn">&larr; Volver al Dashboard</a>
+    <h1>Usuarios Registrados</h1>
+
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Fecha de Registro</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td>{{ usuario.id }}</td>
+                <td>{{ usuario.nombre }}</td>
+                <td>{{ usuario.username }}</td>
+                <td>{{ usuario.email }}</td>
+                <td><strong>{{ usuario.rol }}</strong></td>
+                <td>{{ usuario.fechaRegistro.strftime('%Y-%m-%d %H:%M') if usuario.fechaRegistro else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

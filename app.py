@@ -1,7 +1,9 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from dotenv import load_dotenv
-from models import db, Producto, Gato
+from models import db, Producto, Gato, Usuario
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
 
 load_dotenv()
 
@@ -18,12 +20,24 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Usuario.query.get(int(user_id))
+
 @app.route('/setup-db')
 def setup_db():
-    # Creamos las tablas
     db.create_all()
     
-    # Limpiamos si hay datos viejos
+    # Create default admin if not exists
+    admin = Usuario.query.filter_by(username='admin').first()
+    if not admin:
+        admin = Usuario(nombre='Administrador', username='admin', email='admin@catfeteria.com', password=generate_password_hash('admin'), rol='admin')
+        db.session.add(admin)
+
     Producto.query.delete()
     Gato.query.delete()
     
@@ -48,16 +62,97 @@ def setup_db():
     db.session.commit()
     return "¡Base de datos y datos iniciales configurados con éxito! Ya puedes volver a la página principal."
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        user = Usuario.query.filter_by(username=username).first()
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            if user.rol == 'admin':
+                return redirect(url_for('admin_dashboard'))
+            return redirect(url_for('index'))
+        flash('Usuario o contraseña incorrectos', 'error')
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+@app.route('/admin')
+@login_required
+def admin_dashboard():
+    if current_user.rol != 'admin':
+        return redirect(url_for('index'))
+    return render_template('admin/dashboard.html')
+
+@app.route('/admin/productos')
+@login_required
+def admin_productos():
+    if current_user.rol != 'admin':
+        return redirect(url_for('index'))
+    productos = Producto.query.all()
+    return render_template('admin/productos.html', productos=productos)
+
+@app.route('/admin/productos/editar/<int:id>', methods=['GET', 'POST'])
+@login_required
+def editar_producto(id):
+    if current_user.rol != 'admin':
+        return redirect(url_for('index'))
+    producto = Producto.query.get_or_404(id)
+    if request.method == 'POST':
+        producto.titulo = request.form.get('titulo')
+        producto.descripcion = request.form.get('descripcion')
+        producto.precio = float(request.form.get('precio'))
+        producto.imagenUrl = request.form.get('imagenUrl')
+        db.session.commit()
+        flash('Producto actualizado correctamente', 'success')
+        return redirect(url_for('admin_productos'))
+    return render_template('admin/producto_form.html', producto=producto)
+
+@app.route('/admin/gatos')
+@login_required
+def admin_gatos():
+    if current_user.rol != 'admin':
+        return redirect(url_for('index'))
+    gatos = Gato.query.all()
+    return render_template('admin/gatos.html', gatos=gatos)
+
+@app.route('/admin/gatos/editar/<int:id>', methods=['GET', 'POST'])
+@login_required
+def editar_gato(id):
+    if current_user.rol != 'admin':
+        return redirect(url_for('index'))
+    gato = Gato.query.get_or_404(id)
+    if request.method == 'POST':
+        gato.nombre = request.form.get('nombre')
+        gato.descripcion = request.form.get('descripcion')
+        gato.edad_meses = int(request.form.get('edad_meses') or 0)
+        gato.imagenUrl = request.form.get('imagenUrl')
+        db.session.commit()
+        flash('Gato actualizado correctamente', 'success')
+        return redirect(url_for('admin_gatos'))
+    return render_template('admin/gato_form.html', gato=gato)
+
+@app.route('/admin/usuarios')
+@login_required
+def admin_usuarios():
+    if current_user.rol != 'admin':
+        return redirect(url_for('index'))
+    usuarios = Usuario.query.all()
+    return render_template('admin/usuarios.html', usuarios=usuarios)
+
 @app.route('/')
 def index():
-    # Fetch a few products and cats for the index page if needed
     cats = Gato.query.filter_by(adoptado=False).limit(3).all()
     products = Producto.query.filter(Producto.categoria.in_(['suplemento'])).limit(3).all()
     return render_template('index.html', gatos=cats, suplementos=products)
 
 @app.route('/menu')
 def menu():
-    # Fetch menu items
     cafes = Producto.query.filter(Producto.categoria.in_(['cafe', 'postre'])).all()
     return render_template('menu.html', cafes=cafes)
 

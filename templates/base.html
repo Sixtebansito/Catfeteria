@@ -35,6 +35,12 @@
             <li><a href="{{ url_for('cuenta') }}">Mi cuenta</a></li>
             <li><a href="#carrito" id="open-cart-btn">🛒 Carrito</a></li>
             <li><a href="#contacto">Contacto</a></li>
+            {% if current_user.is_authenticated %}
+                {% if current_user.rol == 'admin' %}
+                    <li><a href="{{ url_for('admin_dashboard') }}" style="color: #ff9800; font-weight: bold;">Panel Admin</a></li>
+                {% endif %}
+                <li><a href="{{ url_for('logout') }}" style="color: red;">Cerrar Sesión</a></li>
+            {% endif %}
         </ul>
     </nav>
 </header>

@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Gestionar Productos | Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-table-container {
+        max-width: 1200px;
+        margin: 3rem auto;
+        padding: 2rem;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 2rem;
+    }
+    .admin-table th, .admin-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    .admin-table th {
+        background-color: var(--secondary-color);
+    }
+    .admin-table img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    .btn-edit {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+    .back-btn {
+        margin-bottom: 1rem;
+        display: inline-block;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-table-container">
+    <a href="{{ url_for('admin_dashboard') }}" class="back-btn">&larr; Volver al Dashboard</a>
+    <h1>Gestionar Productos</h1>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul style="color: green;">
+        {% for category, message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <td><img src="{{ producto.imagenUrl }}" alt="{{ producto.titulo }}"></td>
+                <td>{{ producto.titulo }}</td>
+                <td>{{ producto.categoria }}</td>
+                <td>${{ "%.2f"|format(producto.precio) }}</td>
+                <td><a href="{{ url_for('editar_producto', id=producto.id) }}" class="btn-edit"><i class="bi bi-pencil"></i> Editar</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
