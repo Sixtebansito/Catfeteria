@@ -1,0 +1,83 @@
+/* Estilos del Carrusel */
+.carousel-container {
+width: 99%;
+overflow: hidden;
+position: relative;
+margin: 40px auto 40px auto;
+border-radius: 30px;
+box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+background-color: #fff;
+}
+
+.carousel-slide {
+display: flex;
+transition: transform 0.5s ease-in-out;
+width: 100%;
+}
+
+.carousel-slide a {
+min-width: 100%;
+height: 600px;
+object-fit: cover;
+display: block;
+flex-shrink: 0;
+}
+.carousel-slide a img {
+width: 100%;
+height: 600px;
+object-fit: cover;
+display: block;
+}
+
+.carousel-dots {
+    position: absolute;
+    bottom: 15px; 
+    left: 50%;
+    transform: translateX(-50%); 
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    background-color: rgba(134, 56, 56, 0.5);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.dot.active {
+    background-color: #5d4037;
+    transform: scale(1.2);
+}
+
+@media (max-width: 1200px) {
+    .carousel-slide a{
+        height: 350px; 
+    }
+    .carousel-slide a img{
+        height: 350px;
+        width: 100%;
+    }
+    .btn-subir {
+        display: flex; 
+        justify-content: center;
+        align-items: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .carousel-slide a, 
+    .carousel-slide a img {
+        height: 250px; 
+    }
+    .cart-sidebar {
+        width: 85%;
+    }
+    .checkout-modal{
+        width: 80%;
+        height: 80%;
+    }
+}

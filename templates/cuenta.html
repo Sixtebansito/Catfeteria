@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Catfetería | Mi Cuenta 👤{% endblock %}
+
+{% block content %}
+<div class="section-container" style="margin-top: 100px;">
+    <section class="content-section" style="text-align: center;">
+        <h2>👤 Mi Cuenta</h2>
+        <p>Inicia sesión o regístrate para gestionar tus pedidos y adopciones.</p>
+        
+        <div style="max-width: 400px; margin: 0 auto; text-align: left; background: #fff; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <h3>Iniciar Sesión</h3>
+            <form action="#" method="POST">
+                <label for="username" style="display:block; margin-bottom: 0.5rem;">Usuario:</label>
+                <input type="text" id="username" name="username" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem;" required>
+                
+                <label for="password" style="display:block; margin-bottom: 0.5rem;">Contraseña:</label>
+                <input type="password" id="password" name="password" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem;" required>
+                
+                <button type="submit" class="btn-1" style="width: 100%; border: none;">Ingresar</button>
+            </form>
+            <p style="margin-top: 1rem; text-align: center;">¿No tienes cuenta? <a href="#">Regístrate aquí</a></p>
+        </div>
+    </section>
+</div>
+{% endblock %}

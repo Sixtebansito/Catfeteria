@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Catfetería | Nuestro Menú ☕{% endblock %}
+
+{% block content %}
+<div class="section-container" style="margin-top: 100px;">
+    <section id="menu" class="content-section">
+        <h2>☕ Nuestro Menú de Cafetería</h2>
+        <p>Disfruta de la mejor selección de cafés y postres en compañía de nuestros mininos.</p>
+        
+        <section id="menu-items" class="menu-items">
+            {% for item in cafes %}
+            <div class="menu-item">
+                <img src="{{ item.imagenUrl }}" alt="{{ item.titulo }}">
+                <div class="texto-menu">
+                    <h3>{{ item.titulo }}</h3>
+                    <p>{{ item.descripcion }}</p>
+                    <p class="precio">${{ "%.2f"|format(item.precio) }}</p>
+                    <a href="#" class="agregar-carrito btn-2" data-id="{{ item.id }}" data-nombre="{{ item.titulo }}" data-precio="{{ item.precio }}">Agregar</a>
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+    </section>
+</div>
+{% endblock %}

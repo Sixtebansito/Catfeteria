@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Catfetería | Adopciones 🐾{% endblock %}
+
+{% block content %}
+<div class="section-container" style="margin-top: 100px;">
+    <section id="adopciones" class="content-section">
+        <h2>🐾 Adopciones Responsables</h2>
+        <p>Trabajamos con refugios locales para encontrarle una familia a cada uno de nuestros huéspedes.</p>
+        
+        <section id="gatitos-adoptables" class="gatitos-adoptables">
+            {% for gato in gatos %}
+            <div class="gato">
+                <img src="{{ gato.imagenUrl }}" alt="{{ gato.nombre }}">
+                <div class="text-gato">
+                    <h3>{{ gato.nombre }}</h3>
+                    <p>{{ gato.descripcion }}</p>
+                    <p><strong>Edad:</strong> {{ gato.edad_meses }} meses</p>
+                    <a href="#" class="Adoptar btn-1" data-id="{{ gato.id }}" data-nombre="{{ gato.nombre }}">Adoptar</a>
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+    </section>
+
+    <!-- Adopciones / Escondido -->
+    <div class="checkout-modal" id="adoption-modal">
+        <div class="checkout-content">
+            <span class="close-checkout" id="close-adoption">&times;</span>
+            
+            <div id="adoption-form">
+                <h2>🐈 Formulario de Adopción</h2>
+                <p id="adoption-title">¿Quieres adoptar a este michi?</p>
+                
+                <label for="adopt-name">Tu Nombre Completo:</label>
+                <input type="text" id="adopt-name" placeholder="Ej: Juan Pérez" required>
+
+                <label for="adopt-phone">Número de Teléfono:</label>
+                <input type="tel" id="adopt-phone" placeholder="Ej: 0991234567" required>
+                
+                <label for="adopt-email">Correo Electrónico:</label>
+                <input type="email" id="adopt-email" placeholder="ejemplo@correo.com" required>
+                
+                <label for="adopt-reason">¿Por qué quieres adoptar a este gato?</label>
+                <textarea id="adopt-reason" rows="3" placeholder="Cuéntanos un poco sobre ti y tu hogar..." style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Poppins', sans-serif;"></textarea>
+                
+                <button class="btn-confirm" id="btn-send-adoption">Enviar Solicitud</button>
+            </div>
+
+            <div id="adoption-success" style="display: none; text-align: center;">
+                <i class="bi bi-heart-fill" style="font-size: 3rem; color: #e91e63;"></i>
+                <h3>¡Solicitud Enviada!</h3>
+                <p>Gracias por tu interés en adoptar.</p>
+                <p>Revisaremos tu formulario y te contactaremos pronto.</p>
+                <button class="btn-confirm" id="btn-close-adoption-success">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Catfetería | Suplementos 💊{% endblock %}
+
+{% block content %}
+<div class="section-container" style="margin-top: 100px;">
+    <section id="suplementos" class="content-section">
+        <h2>💊 Tienda de Suplementos y Accesorios</h2>
+        <p>Todo para la salud y felicidad de tu minino.</p>
+        
+        <section id="suplementos-gatos" class="suplementos-gatos">
+            {% for item in suplementos %}
+            <div class="suplemento">
+                <img src="{{ item.imagenUrl }}" alt="{{ item.titulo }}">
+                <div class="text-suplemento">
+                    <h3>{{ item.titulo }}</h3>
+                    <p>{{ item.descripcion }}</p>
+                    <p class="precio">${{ "%.2f"|format(item.precio) }}</p>
+                    <a href="#" class="agregar-carrito btn-2" data-id="{{ item.id }}" data-nombre="{{ item.titulo }}" data-precio="{{ item.precio }}">Agregar al carrito</a>
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+    </section>
+</div>
+{% endblock %}

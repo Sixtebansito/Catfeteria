@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='CSS/carrusel.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Bienvenidos a Catfetería 🐾</h1>
+    <p>El mejor lugar para disfrutar de un buen café y encontrar todo lo necesario para tu compañero felino</p>
+</section>
+
+<!-- Carrusel -->
+<div class="carousel-container">
+    <div class="carousel-slide">
+        <a href="{{ url_for('menu') }}"><img src="{{ url_for('static', filename='Imagenes/Menu y Promos/Menu.png') }}" alt="Menú de Cafetería 1"></a>
+        <a href="{{ url_for('adopciones') }}"><img src="{{ url_for('static', filename='Imagenes/Menu y Promos/Gatitos.png') }}" alt="Gatos en Adopción"></a>
+        <a href="{{ url_for('suplementos') }}"><img src="{{ url_for('static', filename='Imagenes/Menu y Promos/Promos.png') }}" alt="Promociones"></a>
+    </div>
+    <div class="carousel-dots"></div>
+</div>
+
+<div class="section-container">
+    <section id="menu" class="content-section">
+        <h2>☕ Nuestro Menú de Cafetería</h2>
+        <p>Descubre nuestra selección de cafés especiales, tés, postres y snacks. Perfecto para disfrutar mientras convives con nuestros gatitos residentes.</p>
+        <section id="menu-items" class="menu-items">
+            <!-- Dynamic data for index demo, we just show hardcoded or pass limited cafes if we want. We didn't pass cafes to index, but let's assume we want to link it -->
+            <div class="menu-item">
+                <img src="https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=500&q=80" alt="espresso">
+                <div class="texto-menu">
+                    <h3>Café Espresso</h3>
+                    <p>Un clásico intenso y aromático.</p>
+                </div>
+            </div>
+            <div class="menu-item">
+                <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=500&q=80" alt="latte">
+                <div class="texto-menu">
+                    <h3>Café Latte</h3>
+                    <p>Suave mezcla de espresso y leche vaporizada.</p>
+                </div>
+            </div>
+        </section>
+        <a class="ver-menu" href="{{ url_for('menu') }}">TODO EL MENÚ</a>
+    </section>
+    
+    <section id="suplementos" class="content-section">
+        <h2>💊 Tienda de Suplementos y Accesorios para Gatos</h2>
+        <p>Vitaminas, aceites esenciales, juguetes interactivos y alimentos premium. ¡Todo para la salud y felicidad de tu minino!</p>
+        <section id="suplementos-gatos" class="suplementos-gatos">
+            {% for item in suplementos %}
+            <div class="suplemento">
+                <img src="{{ item.imagenUrl }}" alt="{{ item.titulo }}">
+                <div class="text-suplemento">
+                    <h3>{{ item.titulo }}</h3>
+                    <p>{{ item.descripcion }}</p>
+                    <p class="precio">Precio: ${{ "%.2f"|format(item.precio) }}</p>
+                    <a href="#" class="agregar-carrito btn-2" data-id="{{ item.id }}" data-nombre="{{ item.titulo }}" data-precio="{{ item.precio }}">Agregar al carrito</a>
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+        <a class="ver-menu" href="{{ url_for('suplementos') }}">TODOS LOS PRODUCTOS</a>
+    </section>
+    
+    <section id="adopciones" class="content-section">
+        <h2>🐾 Adopciones Responsables</h2>
+        <p>¿Listo para darle un hogar a un amigo peludo? Trabajamos con refugios locales para encontrarle una familia a cada uno de nuestros huéspedes.</p>
+        <section id="gatitos-adoptables" class="gatitos-adoptables">
+            {% for gato in gatos %}
+            <div class="gato">
+                <img src="{{ gato.imagenUrl }}" alt="{{ gato.nombre }}">
+                <div class="text-gato">
+                    <h3>{{ gato.nombre }}</h3>
+                    <p>{{ gato.descripcion }}</p>
+                    <a href="#" class="Adoptar btn-1" data-id="{{ gato.id }}" data-nombre="{{ gato.nombre }}">Adoptar</a>
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+        <a class="ver-menu" href="{{ url_for('adopciones') }}">TODOS LOS GATITOS</a>
+    </section>
+    
+    <section id="quienes-somos" class="content-section">
+        <h2>Acerca de Nosotros</h2>
+        <p>Nuestra misión es combinar el amor por el café con el bienestar animal.</p>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='JS/carrusel.js') }}"></script>
+{% endblock %}
