@@ -283,6 +283,10 @@ except Exception:
 _original_wsgi = app.wsgi_app
 
 def _safe_wsgi(environ, start_response):
+    if 'PATH_INFO' in environ and '%' in environ['PATH_INFO']:
+        from urllib.parse import unquote
+        environ['PATH_INFO'] = unquote(environ['PATH_INFO'])
+
     if STARTUP_ERROR:
         start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
         html = f"""<!DOCTYPE html>
