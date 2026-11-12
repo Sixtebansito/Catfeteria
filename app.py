@@ -17,18 +17,30 @@ try:
 
     # Configure database
     database_url = os.environ.get('DATABASE_URL')
-    if database_url and database_url.startswith("postgres://"):
-        database_url = database_url.replace("postgres://", "postgresql://", 1)
+    if database_url:
+        if database_url.startswith("postgres://"):
+            database_url = database_url.replace("postgres://", "postgresql+psycopg2://", 1)
+        elif database_url.startswith("postgresql://") and not database_url.startswith("postgresql+"):
+            database_url = database_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:////tmp/catfeteria.sqlite3'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_pre_ping': True,
+        'pool_recycle': 300,
+    }
 
     from models import db, Producto, Gato, Usuario, SolicitudAdopcion, Pedido, PedidoItem
     from flask_login import LoginManager, login_user, logout_user, login_required, current_user
     from werkzeug.security import generate_password_hash, check_password_hash
     from seed import seed_database, get_initial_products, get_initial_cats
 
-    db.init_app(app)
+    try:
+        db.init_app(app)
+    except Exception as db_init_err:
+        app.logger.error(f"Error initializing db with primary URI: {db_init_err}. Falling back to SQLite.")
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/catfeteria.sqlite3'
+        db.init_app(app)
 
     login_manager = LoginManager()
     login_manager.init_app(app)
