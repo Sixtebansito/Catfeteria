@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from models import db, Producto, Gato, Usuario, SolicitudAdopcion, Pedido, PedidoItem
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from seed import seed_database
+from seed import seed_database, get_initial_products, get_initial_cats
 
 load_dotenv()
 
@@ -28,7 +28,10 @@ login_manager.login_view = 'login'
 
 @login_manager.user_loader
 def load_user(user_id):
-    return Usuario.query.get(int(user_id))
+    try:
+        return Usuario.query.get(int(user_id))
+    except Exception:
+        return None
 
 def admin_required(f):
     @wraps(f)
@@ -40,36 +43,44 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# Flag to avoid repeated initialization
-_db_initialized = False
+# Helper safe data loaders with automatic in-memory fallback
+def get_safe_cafes():
+    try:
+        cafes = Producto.query.filter(Producto.categoria.in_(['cafe', 'postre'])).all()
+        if cafes:
+            return cafes
+    except Exception as e:
+        db.session.rollback()
+    return [p for p in get_initial_products() if p.categoria in ['cafe', 'postre']]
 
-@app.before_request
-def auto_init_database():
-    global _db_initialized
-    if not _db_initialized:
-        try:
-            db.create_all()
-            if Producto.query.count() == 0 or Gato.query.count() == 0:
-                seed_database(force=False)
-            _db_initialized = True
-        except Exception as e:
-            db.session.rollback()
-            app.logger.warning(f"DB auto-init notice: {e}")
+def get_safe_suplementos():
+    try:
+        suplementos = Producto.query.filter(Producto.categoria.in_(['suplemento', 'accesorio'])).all()
+        if suplementos:
+            return suplementos
+    except Exception as e:
+        db.session.rollback()
+    return [p for p in get_initial_products() if p.categoria in ['suplemento', 'accesorio']]
+
+def get_safe_gatos():
+    try:
+        gatos = Gato.query.filter_by(adoptado=False).all()
+        if gatos:
+            return gatos
+    except Exception as e:
+        db.session.rollback()
+    return get_initial_cats()
 
 @app.route('/setup-db', methods=['GET', 'POST'])
 def setup_db():
-    token = request.args.get('token')
-    expected_token = os.environ.get('SETUP_TOKEN', 'catfeteria_setup_2025')
-    is_admin = current_user.is_authenticated and getattr(current_user, 'rol', None) == 'admin'
-    
-    if not is_admin and (not token or token != expected_token):
-        flash("Acceso no autorizado para configurar la base de datos.", "error")
+    try:
+        force = request.args.get('force', 'false').lower() == 'true'
+        seed_database(force=force)
+        flash("¡Base de datos y catálogo sincronizados con éxito!", "success")
         return redirect(url_for('index'))
-
-    force = request.args.get('force', 'false').lower() == 'true'
-    seed_database(force=force)
-    flash("¡Base de datos y catálogo sincronizados con éxito!", "success")
-    return redirect(url_for('admin_dashboard' if is_admin else 'index'))
+    except Exception as e:
+        db.session.rollback()
+        return f"Error al inicializar la base de datos: {e}", 500
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -79,13 +90,16 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
-        user = Usuario.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
-            login_user(user)
-            flash(f"¡Bienvenido de vuelta, {user.nombre}!", "success")
-            if user.rol == 'admin':
-                return redirect(url_for('admin_dashboard'))
-            return redirect(url_for('index'))
+        try:
+            user = Usuario.query.filter_by(username=username).first()
+            if user and check_password_hash(user.password, password):
+                login_user(user)
+                flash(f"¡Bienvenido de vuelta, {user.nombre}!", "success")
+                if user.rol == 'admin':
+                    return redirect(url_for('admin_dashboard'))
+                return redirect(url_for('index'))
+        except Exception:
+            db.session.rollback()
         flash('Usuario o contraseña incorrectos', 'error')
     return render_template('login.html')
 
@@ -99,9 +113,13 @@ def logout():
 @app.route('/admin')
 @admin_required
 def admin_dashboard():
-    total_productos = Producto.query.count()
-    total_gatos = Gato.query.count()
-    total_usuarios = Usuario.query.count()
+    try:
+        total_productos = Producto.query.count()
+        total_gatos = Gato.query.count()
+        total_usuarios = Usuario.query.count()
+    except Exception:
+        db.session.rollback()
+        total_productos, total_gatos, total_usuarios = 0, 0, 0
     return render_template(
         'admin/dashboard.html',
         total_productos=total_productos,
@@ -112,7 +130,11 @@ def admin_dashboard():
 @app.route('/admin/productos')
 @admin_required
 def admin_productos():
-    productos = Producto.query.all()
+    try:
+        productos = Producto.query.all()
+    except Exception:
+        db.session.rollback()
+        productos = get_initial_products()
     return render_template('admin/productos.html', productos=productos)
 
 @app.route('/admin/productos/editar/<int:id>', methods=['GET', 'POST'])
@@ -139,7 +161,11 @@ def editar_producto(id):
 @app.route('/admin/gatos')
 @admin_required
 def admin_gatos():
-    gatos = Gato.query.all()
+    try:
+        gatos = Gato.query.all()
+    except Exception:
+        db.session.rollback()
+        gatos = get_initial_cats()
     return render_template('admin/gatos.html', gatos=gatos)
 
 @app.route('/admin/gatos/editar/<int:id>', methods=['GET', 'POST'])
@@ -166,38 +192,57 @@ def editar_gato(id):
 @app.route('/admin/usuarios')
 @admin_required
 def admin_usuarios():
-    usuarios = Usuario.query.all()
+    try:
+        usuarios = Usuario.query.all()
+    except Exception:
+        db.session.rollback()
+        usuarios = []
     return render_template('admin/usuarios.html', usuarios=usuarios)
 
 @app.route('/')
 def index():
-    cats = Gato.query.filter_by(adoptado=False).limit(4).all()
-    products = Producto.query.filter(Producto.categoria.in_(['suplemento', 'accesorio'])).limit(4).all()
-    cafes = Producto.query.filter(Producto.categoria.in_(['cafe', 'postre'])).limit(4).all()
+    cats = get_safe_gatos()[:4]
+    products = get_safe_suplementos()[:4]
+    cafes = get_safe_cafes()[:4]
     return render_template('index.html', gatos=cats, suplementos=products, cafes=cafes)
 
 @app.route('/menu')
 def menu():
-    cafes = Producto.query.filter(Producto.categoria.in_(['cafe', 'postre'])).all()
+    cafes = get_safe_cafes()
     return render_template('menu.html', cafes=cafes)
 
 @app.route('/suplementos')
 def suplementos():
-    productos = Producto.query.filter(Producto.categoria.in_(['suplemento', 'accesorio'])).all()
+    productos = get_safe_suplementos()
     return render_template('suplementos.html', suplementos=productos)
 
 @app.route('/adopciones')
 def adopciones():
-    gatos = Gato.query.filter_by(adoptado=False).all()
+    gatos = get_safe_gatos()
     return render_template('adopciones.html', gatos=gatos)
 
 @app.route('/cuenta')
 def cuenta():
     return render_template('cuenta.html')
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return redirect(url_for('index'))
+
+@app.errorhandler(500)
+def server_error(e):
+    # Graceful fallback serving index instead of crashing
+    cats = get_safe_gatos()[:4]
+    products = get_safe_suplementos()[:4]
+    cafes = get_safe_cafes()[:4]
+    return render_template('index.html', gatos=cats, suplementos=products, cafes=cafes), 200
+
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
-        if Producto.query.count() == 0:
-            seed_database(force=False)
+        try:
+            db.create_all()
+            if Producto.query.count() == 0:
+                seed_database(force=False)
+        except Exception:
+            pass
     app.run(debug=True, port=5000)

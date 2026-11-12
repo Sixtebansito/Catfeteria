@@ -30,10 +30,12 @@
                     <div class="card-meta-row">
                         <span class="card-age-tag">
                             <i class="bi bi-calendar3"></i> 
-                            {% if gato.edad_meses >= 12 %}
+                            {% if gato.edad_meses and gato.edad_meses >= 12 %}
                                 {{ (gato.edad_meses // 12) }} año{% if (gato.edad_meses // 12) > 1 %}s{% endif %}
-                            {% else %}
+                            {% elif gato.edad_meses %}
                                 {{ gato.edad_meses }} meses
+                            {% else %}
+                                Joven
                             {% endif %}
                         </span>
                         <button class="btn-adopt Adoptar" 
