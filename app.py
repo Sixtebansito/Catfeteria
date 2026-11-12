@@ -1,14 +1,16 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash
+from functools import wraps
+from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from dotenv import load_dotenv
-from models import db, Producto, Gato, Usuario
+from models import db, Producto, Gato, Usuario, SolicitudAdopcion, Pedido, PedidoItem
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from seed import seed_database
 
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')
+app.secret_key = os.environ.get('SECRET_KEY', 'catfeteria_app_secret_key_change_in_prod')
 
 # Configure database
 database_url = os.environ.get('DATABASE_URL')
@@ -28,48 +30,59 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return Usuario.query.get(int(user_id))
 
-@app.route('/setup-db')
-def setup_db():
-    db.create_all()
-    
-    # Create default admin if not exists
-    admin = Usuario.query.filter_by(username='admin').first()
-    if not admin:
-        admin = Usuario(nombre='Administrador', username='admin', email='admin@catfeteria.com', password=generate_password_hash('admin'), rol='admin')
-        db.session.add(admin)
+def admin_required(f):
+    @wraps(f)
+    @login_required
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.rol != 'admin':
+            flash("Acceso restringido a administradores.", "error")
+            return redirect(url_for('index'))
+        return f(*args, **kwargs)
+    return decorated_function
 
-    Producto.query.delete()
-    Gato.query.delete()
+# Flag to avoid repeated initialization
+_db_initialized = False
+
+@app.before_request
+def auto_init_database():
+    global _db_initialized
+    if not _db_initialized:
+        try:
+            db.create_all()
+            if Producto.query.count() == 0 or Gato.query.count() == 0:
+                seed_database(force=False)
+            _db_initialized = True
+        except Exception as e:
+            db.session.rollback()
+            app.logger.warning(f"DB auto-init notice: {e}")
+
+@app.route('/setup-db', methods=['GET', 'POST'])
+def setup_db():
+    token = request.args.get('token')
+    expected_token = os.environ.get('SETUP_TOKEN', 'catfeteria_setup_2025')
+    is_admin = current_user.is_authenticated and getattr(current_user, 'rol', None) == 'admin'
     
-    cafes = [
-        Producto(titulo="Café Espresso", descripcion="Un clásico intenso y aromático.", precio=2.50, categoria="cafe", imagenUrl="https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=500&q=80"),
-        Producto(titulo="Café Latte", descripcion="Suave mezcla de espresso y leche vaporizada.", precio=3.50, categoria="cafe", imagenUrl="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=500&q=80"),
-        Producto(titulo="Café Mocha", descripcion="Un espresso con un toque de chocolate.", precio=4.00, categoria="cafe", imagenUrl="https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=500&q=80"),
-    ]
-    suplementos = [
-        Producto(titulo="Arena de Gatos", descripcion="4kg de la mejor arena para tu gato", precio=9.99, categoria="suplemento", imagenUrl="https://images.unsplash.com/photo-1593466144883-7d9fc84bf321?w=500&q=80"),
-        Producto(titulo="Juguete Interactivo Láser", descripcion="Estimula la mente y el cuerpo de tu gato.", precio=14.99, categoria="accesorio", imagenUrl="https://images.unsplash.com/photo-1543852786-1cf6624b9987?w=500&q=80"),
-        Producto(titulo="Comida para Gatos", descripcion="Mejora la salud de la piel y el pelaje. 5kg", precio=12.99, categoria="suplemento", imagenUrl="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=500&q=80"),
-    ]
-    gatos = [
-        Gato(nombre="Oreo", descripcion="Un gato muy jugueton y listo para un hogar", edad_meses=12, imagenUrl="https://images.unsplash.com/photo-1513245543132-31f507417b26?w=500&q=80"),
-        Gato(nombre="Milo", descripcion="Un gato cariñoso que busca una familia amorosa", edad_meses=24, imagenUrl="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=500&q=80"),
-        Gato(nombre="Chetto", descripcion="Un gato muy cariño que busca un hogar", edad_meses=6, imagenUrl="https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=500&q=80"),
-    ]
-    db.session.bulk_save_objects(cafes)
-    db.session.bulk_save_objects(suplementos)
-    db.session.bulk_save_objects(gatos)
-    db.session.commit()
-    return "¡Base de datos y datos iniciales configurados con éxito! Ya puedes volver a la página principal."
+    if not is_admin and (not token or token != expected_token):
+        flash("Acceso no autorizado para configurar la base de datos.", "error")
+        return redirect(url_for('index'))
+
+    force = request.args.get('force', 'false').lower() == 'true'
+    seed_database(force=force)
+    flash("¡Base de datos y catálogo sincronizados con éxito!", "success")
+    return redirect(url_for('admin_dashboard' if is_admin else 'index'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+        
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
         user = Usuario.query.filter_by(username=username).first()
         if user and check_password_hash(user.password, password):
             login_user(user)
+            flash(f"¡Bienvenido de vuelta, {user.nombre}!", "success")
             if user.rol == 'admin':
                 return redirect(url_for('admin_dashboard'))
             return redirect(url_for('index'))
@@ -80,76 +93,88 @@ def login():
 @login_required
 def logout():
     logout_user()
+    flash("Has cerrado sesión exitosamente", "info")
     return redirect(url_for('index'))
 
 @app.route('/admin')
-@login_required
+@admin_required
 def admin_dashboard():
-    if current_user.rol != 'admin':
-        return redirect(url_for('index'))
-    return render_template('admin/dashboard.html')
+    total_productos = Producto.query.count()
+    total_gatos = Gato.query.count()
+    total_usuarios = Usuario.query.count()
+    return render_template(
+        'admin/dashboard.html',
+        total_productos=total_productos,
+        total_gatos=total_gatos,
+        total_usuarios=total_usuarios
+    )
 
 @app.route('/admin/productos')
-@login_required
+@admin_required
 def admin_productos():
-    if current_user.rol != 'admin':
-        return redirect(url_for('index'))
     productos = Producto.query.all()
     return render_template('admin/productos.html', productos=productos)
 
 @app.route('/admin/productos/editar/<int:id>', methods=['GET', 'POST'])
-@login_required
+@admin_required
 def editar_producto(id):
-    if current_user.rol != 'admin':
-        return redirect(url_for('index'))
     producto = Producto.query.get_or_404(id)
     if request.method == 'POST':
-        producto.titulo = request.form.get('titulo')
-        producto.descripcion = request.form.get('descripcion')
-        producto.precio = float(request.form.get('precio'))
-        producto.imagenUrl = request.form.get('imagenUrl')
+        try:
+            precio = float(request.form.get('precio', 0))
+        except (ValueError, TypeError):
+            flash('El precio ingresado no es válido', 'error')
+            return render_template('admin/producto_form.html', producto=producto)
+            
+        producto.titulo = request.form.get('titulo', '').strip()
+        producto.descripcion = request.form.get('descripcion', '').strip()
+        producto.precio = precio
+        producto.imagenUrl = request.form.get('imagenUrl', '').strip()
+        producto.categoria = request.form.get('categoria', producto.categoria)
         db.session.commit()
         flash('Producto actualizado correctamente', 'success')
         return redirect(url_for('admin_productos'))
     return render_template('admin/producto_form.html', producto=producto)
 
 @app.route('/admin/gatos')
-@login_required
+@admin_required
 def admin_gatos():
-    if current_user.rol != 'admin':
-        return redirect(url_for('index'))
     gatos = Gato.query.all()
     return render_template('admin/gatos.html', gatos=gatos)
 
 @app.route('/admin/gatos/editar/<int:id>', methods=['GET', 'POST'])
-@login_required
+@admin_required
 def editar_gato(id):
-    if current_user.rol != 'admin':
-        return redirect(url_for('index'))
     gato = Gato.query.get_or_404(id)
     if request.method == 'POST':
-        gato.nombre = request.form.get('nombre')
-        gato.descripcion = request.form.get('descripcion')
-        gato.edad_meses = int(request.form.get('edad_meses') or 0)
-        gato.imagenUrl = request.form.get('imagenUrl')
+        try:
+            edad_meses = int(request.form.get('edad_meses') or 0)
+        except (ValueError, TypeError):
+            flash('La edad en meses debe ser un número entero', 'error')
+            return render_template('admin/gato_form.html', gato=gato)
+
+        gato.nombre = request.form.get('nombre', '').strip()
+        gato.descripcion = request.form.get('descripcion', '').strip()
+        gato.edad_meses = edad_meses
+        gato.imagenUrl = request.form.get('imagenUrl', '').strip()
+        gato.adoptado = 'adoptado' in request.form
         db.session.commit()
         flash('Gato actualizado correctamente', 'success')
         return redirect(url_for('admin_gatos'))
     return render_template('admin/gato_form.html', gato=gato)
 
 @app.route('/admin/usuarios')
-@login_required
+@admin_required
 def admin_usuarios():
-    if current_user.rol != 'admin':
-        return redirect(url_for('index'))
     usuarios = Usuario.query.all()
     return render_template('admin/usuarios.html', usuarios=usuarios)
 
 @app.route('/')
 def index():
-    cats = Gato.query.filter_by(adoptado=False).limit(3).all()
-    products = Producto.query.filter(Producto.categoria.in_(['suplemento'])).limit(3).all()
-    return render_template('index.html', gatos=cats, suplementos=products)
+    cats = Gato.query.filter_by(adoptado=False).limit(4).all()
+    products = Producto.query.filter(Producto.categoria.in_(['suplemento', 'accesorio'])).limit(4).all()
+    cafes = Producto.query.filter(Producto.categoria.in_(['cafe', 'postre'])).limit(4).all()
+    return render_template('index.html', gatos=cats, suplementos=products, cafes=cafes)
 
 @app.route('/menu')
 def menu():
@@ -171,4 +196,8 @@ def cuenta():
     return render_template('cuenta.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    with app.app_context():
+        db.create_all()
+        if Producto.query.count() == 0:
+            seed_database(force=False)
+    app.run(debug=True, port=5000)

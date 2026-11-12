@@ -1,58 +1,156 @@
 {% extends 'base.html' %}
 
-{% block title %}Catfetería | Adopciones 🐾{% endblock %}
+{% block title %}Catfetería | Adopciones Responsables 🐾❤️{% endblock %}
 
 {% block content %}
-<div class="section-container" style="margin-top: 100px;">
-    <section id="adopciones" class="content-section">
-        <h2>🐾 Adopciones Responsables</h2>
-        <p>Trabajamos con refugios locales para encontrarle una familia a cada uno de nuestros huéspedes.</p>
-        
-        <section id="gatitos-adoptables" class="gatitos-adoptables">
+<div class="section-container" style="margin-top: 40px;">
+    <section class="content-section">
+        <div class="section-header-wrap">
+            <span class="section-tag">Adopciones Responsables</span>
+            <h2>🐾 Conoce a Nuestros Huéspedes</h2>
+            <p>Trabajamos de la mano con refugios y rescatistas independientes de Quito para rehabilitar, cuidar y encontrarle un hogar definitivo a cada uno de nuestros michis residentes.</p>
+        </div>
+
+        <!-- Grid de Gatitos -->
+        <div class="cards-grid">
             {% for gato in gatos %}
-            <div class="gato">
-                <img src="{{ gato.imagenUrl }}" alt="{{ gato.nombre }}">
-                <div class="text-gato">
+            <div class="custom-card gato" data-id="{{ gato.id }}" data-edad="{{ gato.edad_meses }}">
+                <div class="card-img-wrap">
+                    <span class="card-badge badge-adopt"><i class="bi bi-heart-fill"></i> Busca Hogar</span>
+                    <img src="{{ gato.imagenUrl }}" alt="{{ gato.nombre }}" loading="lazy" onerror="this.src='/static/Imagenes/Adopciones/Chetto.jpg'">
+                </div>
+                <div class="card-body">
                     <h3>{{ gato.nombre }}</h3>
-                    <p>{{ gato.descripcion }}</p>
-                    <p><strong>Edad:</strong> {{ gato.edad_meses }} meses</p>
-                    <a href="#" class="Adoptar btn-1" data-id="{{ gato.id }}" data-nombre="{{ gato.nombre }}">Adoptar</a>
+                    <p class="card-desc">{{ gato.descripcion }}</p>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+                        <span style="font-size: 0.75rem; background: rgba(46, 204, 113, 0.12); color: #27ae60; font-weight: 600; padding: 2px 8px; border-radius: var(--radius-full);"><i class="bi bi-check-circle"></i> Vacunado</span>
+                        <span style="font-size: 0.75rem; background: rgba(46, 204, 113, 0.12); color: #27ae60; font-weight: 600; padding: 2px 8px; border-radius: var(--radius-full);"><i class="bi bi-check-circle"></i> Desparasitado</span>
+                        <span style="font-size: 0.75rem; background: rgba(198, 125, 73, 0.12); color: var(--caramel); font-weight: 600; padding: 2px 8px; border-radius: var(--radius-full);"><i class="bi bi-heart"></i> Esterilizado</span>
+                    </div>
+                    <div class="card-meta-row">
+                        <span class="card-age-tag">
+                            <i class="bi bi-calendar3"></i> 
+                            {% if gato.edad_meses >= 12 %}
+                                {{ (gato.edad_meses // 12) }} año{% if (gato.edad_meses // 12) > 1 %}s{% endif %}
+                            {% else %}
+                                {{ gato.edad_meses }} meses
+                            {% endif %}
+                        </span>
+                        <button class="btn-adopt Adoptar" 
+                                data-id="{{ gato.id }}" 
+                                data-nombre="{{ gato.nombre }}"
+                                data-imagen="{{ gato.imagenUrl }}"
+                                data-edad="{{ gato.edad_meses }}">
+                            <i class="bi bi-heart"></i> Postular
+                        </button>
+                    </div>
                 </div>
             </div>
             {% endfor %}
-        </section>
+        </div>
+
+        <!-- Proceso de Adopción -->
+        <div style="margin-top: 50px;">
+            <div class="section-header-wrap" style="margin-bottom: 25px;">
+                <span class="section-tag">Paso a Paso</span>
+                <h2>¿Cómo es el Proceso de Adopción?</h2>
+                <p>Nos aseguramos de que cada gatito llegue a un entorno amoroso, seguro y preparado para recibirlo.</p>
+            </div>
+
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h4>Elige a tu Michi</h4>
+                    <p>Revisa los perfiles de nuestros gatitos o visítanos en Catfetería para sentir la química en persona.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h4>Envía tu Solicitud</h4>
+                    <p>Haz clic en "Postular" y completa el breve formulario para coordinar la entrevista por WhatsApp.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4>Visita y Entrevista</h4>
+                    <p>Agendamos una charla cordial para conocer tu experiencia previa y las medidas de seguridad de tu hogar.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h4>¡Bienvenida a Casa!</h4>
+                    <p>Firmamos el acta de adopción responsable y tu nuevo compañero viaja a llenar tu vida de ronroneos.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preguntas Frecuentes -->
+        <div style="margin-top: 50px; background: var(--bg-cream); border-radius: var(--radius-md); padding: 30px; border: 1px solid var(--border-light); text-align: left;">
+            <h3 style="font-family: var(--font-heading); font-size: 1.8rem; color: var(--primary-color); margin-bottom: 20px; text-align: center;">Preguntas Frecuentes sobre la Adopción</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <h5 style="color: var(--primary-color); font-size: 1rem; margin-bottom: 4px;"><i class="bi bi-question-circle-fill" style="color: var(--caramel);"></i> ¿La adopción tiene costo?</h5>
+                    <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 0;">La adopción como tal es gratuita. Sin embargo, solicitamos una contribución solidaria o donación de alimento/arena que ayuda a cubrir los gastos veterinarios (vacunas, esterilización y pruebas víricas) del próximo rescatado.</p>
+                </div>
+                <hr style="border: none; border-top: 1px solid var(--border-light);">
+                <div>
+                    <h5 style="color: var(--primary-color); font-size: 1rem; margin-bottom: 4px;"><i class="bi bi-question-circle-fill" style="color: var(--caramel);"></i> ¿Qué requisitos de seguridad solicitan?</h5>
+                    <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 0;">Es indispensable contar con mallas de seguridad o mosquiteros en ventanas y balcones en caso de vivir en departamentos para evitar caídas (síndrome del gato paracaidista).</p>
+                </div>
+                <hr style="border: none; border-top: 1px solid var(--border-light);">
+                <div>
+                    <h5 style="color: var(--primary-color); font-size: 1rem; margin-bottom: 4px;"><i class="bi bi-question-circle-fill" style="color: var(--caramel);"></i> ¿Puedo convivir con el gato antes de decidirme?</h5>
+                    <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 0;">¡Por supuesto! Esa es una de las grandes ventajas de Catfetería. Puedes venir a tomar un café y pasar tiempo con él o ella en un ambiente relajado y natural.</p>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <!-- Adopciones / Escondido -->
+    <!-- Modal de Adopciones -->
     <div class="checkout-modal" id="adoption-modal">
         <div class="checkout-content">
             <span class="close-checkout" id="close-adoption">&times;</span>
             
             <div id="adoption-form">
                 <h2>🐈 Formulario de Adopción</h2>
-                <p id="adoption-title">¿Quieres adoptar a este michi?</p>
-                
-                <label for="adopt-name">Tu Nombre Completo:</label>
-                <input type="text" id="adopt-name" placeholder="Ej: Juan Pérez" required>
+                <p class="modal-sub" id="adoption-title">¿Deseas postular para adoptar a este michi?</p>
 
-                <label for="adopt-phone">Número de Teléfono:</label>
-                <input type="tel" id="adopt-phone" placeholder="Ej: 0991234567" required>
+                <div class="modal-cat-preview">
+                    <img id="adoption-cat-avatar" src="{{ url_for('static', filename='Imagenes/Adopciones/Chetto.jpg') }}" alt="Gatito">
+                    <div>
+                        <h4 id="adoption-cat-name-span">Michi</h4>
+                        <p>En Catfetería &middot; Rescatado con amor</p>
+                    </div>
+                </div>
                 
-                <label for="adopt-email">Correo Electrónico:</label>
-                <input type="email" id="adopt-email" placeholder="ejemplo@correo.com" required>
+                <div class="form-group">
+                    <label for="adopt-name">Tu Nombre Completo:</label>
+                    <input type="text" id="adopt-name" placeholder="Ej: Juan Pérez" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="adopt-phone">Número de WhatsApp (10 dígitos):</label>
+                    <input type="tel" id="adopt-phone" placeholder="Ej: 0991234567" required>
+                </div>
                 
-                <label for="adopt-reason">¿Por qué quieres adoptar a este gato?</label>
-                <textarea id="adopt-reason" rows="3" placeholder="Cuéntanos un poco sobre ti y tu hogar..." style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Poppins', sans-serif;"></textarea>
+                <div class="form-group">
+                    <label for="adopt-email">Correo Electrónico:</label>
+                    <input type="email" id="adopt-email" placeholder="ejemplo@correo.com">
+                </div>
                 
-                <button class="btn-confirm" id="btn-send-adoption">Enviar Solicitud</button>
+                <div class="form-group">
+                    <label for="adopt-reason">Cuéntanos sobre tu hogar (¿Tienes otras mascotas o niños?):</label>
+                    <textarea id="adopt-reason" rows="3" placeholder="Queremos asegurar la mejor química entre tú y el michi..."></textarea>
+                </div>
+                
+                <button class="btn-confirm" id="btn-send-adoption">
+                    <i class="bi bi-whatsapp"></i> Enviar Solicitud por WhatsApp
+                </button>
             </div>
 
-            <div id="adoption-success" style="display: none; text-align: center;">
-                <i class="bi bi-heart-fill" style="font-size: 3rem; color: #e91e63;"></i>
-                <h3>¡Solicitud Enviada!</h3>
-                <p>Gracias por tu interés en adoptar.</p>
-                <p>Revisaremos tu formulario y te contactaremos pronto.</p>
-                <button class="btn-confirm" id="btn-close-adoption-success">Cerrar</button>
+            <div id="adoption-success" style="display: none; text-align: center; padding: 25px 0;">
+                <i class="bi bi-heart-fill" style="font-size: 3.5rem; color: #e05666;"></i>
+                <h3 style="margin-top: 15px; color: var(--primary-color);">¡Solicitud Generada!</h3>
+                <p style="color: var(--text-secondary); margin: 10px 0 20px 0;">Te redirigimos a WhatsApp para coordinar tu entrevista y agendar tu visita al Cat Café.</p>
+                <button class="btn-primary" id="btn-close-adoption-success" style="width: 100%; justify-content: center;">Cerrar</button>
             </div>
         </div>
     </div>

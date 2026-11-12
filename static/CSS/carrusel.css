@@ -1,83 +1,153 @@
-/* Estilos del Carrusel */
+/* ==========================================================================
+   CARRUSEL PRO - CATFETERÍA
+   ========================================================================== */
+
 .carousel-container {
-width: 99%;
-overflow: hidden;
-position: relative;
-margin: 40px auto 40px auto;
-border-radius: 30px;
-box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-background-color: #fff;
+    width: 100%;
+    max-width: 1320px;
+    margin: 30px auto 10px auto;
+    position: relative;
+    border-radius: var(--radius-lg, 24px);
+    overflow: hidden;
+    box-shadow: 0 12px 36px rgba(45, 36, 33, 0.12);
+    background-color: #271612;
 }
 
 .carousel-slide {
-display: flex;
-transition: transform 0.5s ease-in-out;
-width: 100%;
+    display: flex;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 100%;
 }
 
-.carousel-slide a {
-min-width: 100%;
-height: 600px;
-object-fit: cover;
-display: block;
-flex-shrink: 0;
-}
-.carousel-slide a img {
-width: 100%;
-height: 600px;
-object-fit: cover;
-display: block;
+.carousel-slide a, 
+.carousel-slide .carousel-item {
+    min-width: 100%;
+    height: 480px;
+    display: block;
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
 }
 
+.carousel-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.8s ease;
+}
+
+.carousel-container:hover .carousel-slide img {
+    transform: scale(1.02);
+}
+
+/* Flechas de navegación */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    background: rgba(39, 22, 18, 0.65);
+    backdrop-filter: blur(8px);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    opacity: 0;
+}
+
+.carousel-container:hover .carousel-btn {
+    opacity: 1;
+}
+
+.carousel-btn:hover {
+    background: var(--caramel, #c67d49);
+    border-color: var(--caramel, #c67d49);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-btn.prev {
+    left: 20px;
+}
+
+.carousel-btn.next {
+    right: 20px;
+}
+
+/* Indicadores / Dots */
 .carousel-dots {
     position: absolute;
-    bottom: 15px; 
+    bottom: 20px;
     left: 50%;
-    transform: translateX(-50%); 
+    transform: translateX(-50%);
     display: flex;
+    align-items: center;
     gap: 10px;
     z-index: 10;
+    background: rgba(39, 22, 18, 0.5);
+    backdrop-filter: blur(8px);
+    padding: 6px 14px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .dot {
-    width: 12px;
-    height: 12px;
-    background-color: rgba(134, 56, 56, 0.5);
+    width: 10px;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.5);
     border-radius: 50%;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dot.active {
-    background-color: #5d4037;
-    transform: scale(1.2);
+    background-color: #ffffff;
+    width: 26px;
+    border-radius: 12px;
 }
 
-@media (max-width: 1200px) {
-    .carousel-slide a{
-        height: 350px; 
+/* Responsividad del Carrusel */
+@media (max-width: 1024px) {
+    .carousel-slide a, 
+    .carousel-slide .carousel-item {
+        height: 380px;
     }
-    .carousel-slide a img{
-        height: 350px;
-        width: 100%;
-    }
-    .btn-subir {
-        display: flex; 
-        justify-content: center;
-        align-items: center;
+    
+    .carousel-btn {
+        opacity: 0.9;
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
     }
 }
 
 @media (max-width: 768px) {
     .carousel-slide a, 
-    .carousel-slide a img {
-        height: 250px; 
+    .carousel-slide .carousel-item {
+        height: 260px;
     }
-    .cart-sidebar {
-        width: 85%;
+    
+    .carousel-btn {
+        display: none;
     }
-    .checkout-modal{
-        width: 80%;
-        height: 80%;
+    
+    .carousel-dots {
+        bottom: 12px;
+        padding: 4px 10px;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .carousel-slide a, 
+    .carousel-slide .carousel-item {
+        height: 190px;
     }
 }

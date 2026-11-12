@@ -1,26 +1,61 @@
 {% extends 'base.html' %}
 
-{% block title %}Catfetería | Nuestro Menú ☕{% endblock %}
+{% block title %}Catfetería | Menú de Cafetería & Repostería ☕{% endblock %}
 
 {% block content %}
-<div class="section-container" style="margin-top: 100px;">
-    <section id="menu" class="content-section">
-        <h2>☕ Nuestro Menú de Cafetería</h2>
-        <p>Disfruta de la mejor selección de cafés y postres en compañía de nuestros mininos.</p>
-        
-        <section id="menu-items" class="menu-items">
+<div class="section-container" style="margin-top: 40px;">
+    <section class="content-section">
+        <div class="section-header-wrap">
+            <span class="section-tag">Café de Especialidad & Repostería</span>
+            <h2>☕ Carta de Catfetería</h2>
+            <p>Disfruta de nuestros cafés de altura, bebidas frías y delicias horneadas artesanalmente mientras compartes con nuestros michis residentes.</p>
+        </div>
+
+        <!-- Filtros Rápidos -->
+        <div class="filter-tabs-bar">
+            <button class="filter-tab-btn active" data-filter="all"><i class="bi bi-grid-fill"></i> Todo el Menú</button>
+            <button class="filter-tab-btn" data-filter="cafe"><i class="bi bi-cup-hot-fill"></i> Cafés y Bebidas</button>
+            <button class="filter-tab-btn" data-filter="postre"><i class="bi bi-cake2-fill"></i> Postres y Repostería</button>
+        </div>
+
+        <!-- Grid de Items -->
+        <div class="cards-grid">
             {% for item in cafes %}
-            <div class="menu-item">
-                <img src="{{ item.imagenUrl }}" alt="{{ item.titulo }}">
-                <div class="texto-menu">
+            <div class="custom-card" data-id="{{ item.id }}" data-categoria="{{ item.categoria }}">
+                <div class="card-img-wrap">
+                    {% if item.categoria == 'postre' %}
+                        <span class="card-badge badge-promo">🍰 Repostería</span>
+                    {% else %}
+                        <span class="card-badge">☕ Especialidad</span>
+                    {% endif %}
+                    <img src="{{ item.imagenUrl }}" alt="{{ item.titulo }}" loading="lazy" onerror="this.src='/static/Imagenes/Menu y Promos/espresso.jpg'">
+                </div>
+                <div class="card-body">
                     <h3>{{ item.titulo }}</h3>
-                    <p>{{ item.descripcion }}</p>
-                    <p class="precio">${{ "%.2f"|format(item.precio) }}</p>
-                    <a href="#" class="agregar-carrito btn-2" data-id="{{ item.id }}" data-nombre="{{ item.titulo }}" data-precio="{{ item.precio }}">Agregar</a>
+                    <p class="card-desc">{{ item.descripcion }}</p>
+                    <div class="card-meta-row">
+                        <span class="card-price">${{ "%.2f"|format(item.precio) }}</span>
+                        <button class="btn-cart agregar-carrito" 
+                                data-id="{{ item.id }}" 
+                                data-nombre="{{ item.titulo }}" 
+                                data-precio="{{ item.precio }}"
+                                data-imagen="{{ item.imagenUrl }}">
+                            <i class="bi bi-cart-plus"></i> Pedir
+                        </button>
+                    </div>
                 </div>
             </div>
             {% endfor %}
-        </section>
+        </div>
+
+        <!-- Nota informativa del barista -->
+        <div style="background: var(--bg-cream); border: 1px dashed var(--border-hover); border-radius: var(--radius-md); padding: 20px 25px; margin-top: 30px; display: flex; align-items: center; gap: 18px; text-align: left;">
+            <i class="bi bi-info-circle-fill" style="font-size: 2rem; color: var(--caramel); flex-shrink: 0;"></i>
+            <div>
+                <h4 style="color: var(--primary-color); font-size: 1.05rem; margin-bottom: 4px;">¿Prefieres leche vegetal o endulzante natural?</h4>
+                <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 0;">Disponemos de leche de avena, almendra, deslactosada y opciones sin azúcar añadida. Solo indícanoslo al momento de ordenar.</p>
+            </div>
+        </div>
     </section>
 </div>
 {% endblock %}

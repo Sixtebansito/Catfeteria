@@ -5,86 +5,324 @@
 {% endblock %}
 
 {% block content %}
+<!-- Hero Section Principal -->
 <section class="hero">
-    <h1>Bienvenidos a Catfetería 🐾</h1>
-    <p>El mejor lugar para disfrutar de un buen café y encontrar todo lo necesario para tu compañero felino</p>
+    <div class="hero-content">
+        <div class="hero-pill">
+            <i class="bi bi-heart-fill" style="color: #e05666;"></i> Cat Café &middot; Pet Boutique &middot; Adopciones
+        </div>
+        <h1>Donde el buen café y el <span>amor felino</span> se encuentran 🐾☕</h1>
+        <p>Vive una experiencia única en Quito: saborea café de especialidad y repostería artesanal mientras convives con gatitos rescatados que buscan un hogar para siempre.</p>
+        
+        <div class="hero-cta-group">
+            <a href="#menu-destacado" class="btn-primary">
+                <i class="bi bi-cup-hot"></i> Explorar Menú
+            </a>
+            <a href="#adopciones-destacadas" class="btn-adopt">
+                <i class="bi bi-heart"></i> Conocer Gatitos
+            </a>
+            <a href="#tienda-destacada" class="btn-secondary">
+                <i class="bi bi-bag-heart"></i> Pet Boutique
+            </a>
+        </div>
+
+        <div class="hero-badges-row">
+            <div class="hero-badge-card">
+                <i class="bi bi-cup-straw hero-badge-icon"></i>
+                <div class="hero-badge-text">
+                    <h4>Café de Origen</h4>
+                    <p>Granos 100% de Loja</p>
+                </div>
+            </div>
+            <div class="hero-badge-card">
+                <i class="bi bi-shield-check hero-badge-icon"></i>
+                <div class="hero-badge-text">
+                    <h4>Michis Cuidados</h4>
+                    <p>Vacunas y esterilización</p>
+                </div>
+            </div>
+            <div class="hero-badge-card">
+                <i class="bi bi-truck hero-badge-icon"></i>
+                <div class="hero-badge-text">
+                    <h4>Envíos Seguros</h4>
+                    <p>A todo el Ecuador</p>
+                </div>
+            </div>
+            <div class="hero-badge-card">
+                <i class="bi bi-house-heart hero-badge-icon"></i>
+                <div class="hero-badge-text">
+                    <h4>+120 Hogares</h4>
+                    <p>Adopciones exitosas</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 
-<!-- Carrusel -->
+<!-- Carrusel Interactivo Pro -->
 <div class="carousel-container">
     <div class="carousel-slide">
-        <a href="{{ url_for('menu') }}"><img src="{{ url_for('static', filename='Imagenes/Menu y Promos/Menu.png') }}" alt="Menú de Cafetería 1"></a>
-        <a href="{{ url_for('adopciones') }}"><img src="{{ url_for('static', filename='Imagenes/Menu y Promos/Gatitos.png') }}" alt="Gatos en Adopción"></a>
-        <a href="{{ url_for('suplementos') }}"><img src="{{ url_for('static', filename='Imagenes/Menu y Promos/Promos.png') }}" alt="Promociones"></a>
+        <a href="{{ url_for('menu') }}" class="carousel-item">
+            <img src="{{ url_for('static', filename='Imagenes/Menu y Promos/Menu.png') }}" alt="Menú de Cafetería Catfetería">
+        </a>
+        <a href="{{ url_for('adopciones') }}" class="carousel-item">
+            <img src="{{ url_for('static', filename='Imagenes/Menu y Promos/Gatitos.png') }}" alt="Gatos en Adopción Responsable">
+        </a>
+        <a href="{{ url_for('suplementos') }}" class="carousel-item">
+            <img src="{{ url_for('static', filename='Imagenes/Menu y Promos/Promos.png') }}" alt="Promociones Pet Shop y Envíos">
+        </a>
     </div>
+    <button class="carousel-btn prev" aria-label="Slide anterior"><i class="bi bi-chevron-left"></i></button>
+    <button class="carousel-btn next" aria-label="Slide siguiente"><i class="bi bi-chevron-right"></i></button>
     <div class="carousel-dots"></div>
 </div>
 
 <div class="section-container">
-    <section id="menu" class="content-section">
-        <h2>☕ Nuestro Menú de Cafetería</h2>
-        <p>Descubre nuestra selección de cafés especiales, tés, postres y snacks. Perfecto para disfrutar mientras convives con nuestros gatitos residentes.</p>
-        <section id="menu-items" class="menu-items">
-            <!-- Dynamic data for index demo, we just show hardcoded or pass limited cafes if we want. We didn't pass cafes to index, but let's assume we want to link it -->
-            <div class="menu-item">
-                <img src="https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=500&q=80" alt="espresso">
-                <div class="texto-menu">
-                    <h3>Café Espresso</h3>
-                    <p>Un clásico intenso y aromático.</p>
+
+    <!-- SECCIÓN 1: MENÚ DE CAFETERÍA -->
+    <section id="menu-destacado" class="content-section">
+        <div class="section-header-wrap">
+            <span class="section-tag">Cafetería de Especialidad</span>
+            <h2>☕ Especialidades de la Casa</h2>
+            <p>Granos de altura tostados a la perfección, bebidas de autor con diseño latte felino y repostería artesanal para acompañar tu momento de relax.</p>
+        </div>
+
+        <div class="cards-grid">
+            {% for item in cafes %}
+            <div class="custom-card" data-id="{{ item.id }}" data-categoria="{{ item.categoria }}">
+                <div class="card-img-wrap">
+                    <span class="card-badge">☕ Especialidad</span>
+                    <img src="{{ item.imagenUrl }}" alt="{{ item.titulo }}" loading="lazy" onerror="this.src='/static/Imagenes/Menu y Promos/espresso.jpg'">
                 </div>
-            </div>
-            <div class="menu-item">
-                <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=500&q=80" alt="latte">
-                <div class="texto-menu">
-                    <h3>Café Latte</h3>
-                    <p>Suave mezcla de espresso y leche vaporizada.</p>
-                </div>
-            </div>
-        </section>
-        <a class="ver-menu" href="{{ url_for('menu') }}">TODO EL MENÚ</a>
-    </section>
-    
-    <section id="suplementos" class="content-section">
-        <h2>💊 Tienda de Suplementos y Accesorios para Gatos</h2>
-        <p>Vitaminas, aceites esenciales, juguetes interactivos y alimentos premium. ¡Todo para la salud y felicidad de tu minino!</p>
-        <section id="suplementos-gatos" class="suplementos-gatos">
-            {% for item in suplementos %}
-            <div class="suplemento">
-                <img src="{{ item.imagenUrl }}" alt="{{ item.titulo }}">
-                <div class="text-suplemento">
+                <div class="card-body">
                     <h3>{{ item.titulo }}</h3>
-                    <p>{{ item.descripcion }}</p>
-                    <p class="precio">Precio: ${{ "%.2f"|format(item.precio) }}</p>
-                    <a href="#" class="agregar-carrito btn-2" data-id="{{ item.id }}" data-nombre="{{ item.titulo }}" data-precio="{{ item.precio }}">Agregar al carrito</a>
+                    <p class="card-desc">{{ item.descripcion }}</p>
+                    <div class="card-meta-row">
+                        <span class="card-price">${{ "%.2f"|format(item.precio) }}</span>
+                        <button class="btn-cart agregar-carrito" 
+                                data-id="{{ item.id }}" 
+                                data-nombre="{{ item.titulo }}" 
+                                data-precio="{{ item.precio }}"
+                                data-imagen="{{ item.imagenUrl }}">
+                            <i class="bi bi-cart-plus"></i> Pedir
+                        </button>
+                    </div>
                 </div>
             </div>
             {% endfor %}
-        </section>
-        <a class="ver-menu" href="{{ url_for('suplementos') }}">TODOS LOS PRODUCTOS</a>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="{{ url_for('menu') }}" class="btn-view-all">
+                Ver Menú Completo <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
     </section>
-    
-    <section id="adopciones" class="content-section">
-        <h2>🐾 Adopciones Responsables</h2>
-        <p>¿Listo para darle un hogar a un amigo peludo? Trabajamos con refugios locales para encontrarle una familia a cada uno de nuestros huéspedes.</p>
-        <section id="gatitos-adoptables" class="gatitos-adoptables">
+
+    <!-- SECCIÓN 2: TIENDA Y SUPLEMENTOS -->
+    <section id="tienda-destacada" class="content-section">
+        <div class="section-header-wrap">
+            <span class="section-tag">Pet Boutique & Salud</span>
+            <h2>🛍️ Tienda y Suplementos para Gatos</h2>
+            <p>Todo lo que tu compañero felino necesita para una vida sana y feliz: alimentos premium, arenas ecológicas, vitaminas y juguetes interactivos.</p>
+        </div>
+
+        <div class="cards-grid">
+            {% for item in suplementos %}
+            <div class="custom-card" data-id="{{ item.id }}" data-categoria="{{ item.categoria }}">
+                <div class="card-img-wrap">
+                    {% if item.categoria == 'accesorio' %}
+                        <span class="card-badge badge-promo">🎾 Juguete / Confort</span>
+                    {% else %}
+                        <span class="card-badge">🌿 Nutrición & Salud</span>
+                    {% endif %}
+                    <img src="{{ item.imagenUrl }}" alt="{{ item.titulo }}" loading="lazy" onerror="this.src='/static/Imagenes/Suplementos/arena.jpg'">
+                </div>
+                <div class="card-body">
+                    <h3>{{ item.titulo }}</h3>
+                    <p class="card-desc">{{ item.descripcion }}</p>
+                    <div class="card-meta-row">
+                        <span class="card-price">${{ "%.2f"|format(item.precio) }}</span>
+                        <button class="btn-cart agregar-carrito" 
+                                data-id="{{ item.id }}" 
+                                data-nombre="{{ item.titulo }}" 
+                                data-precio="{{ item.precio }}"
+                                data-imagen="{{ item.imagenUrl }}">
+                            <i class="bi bi-bag-plus"></i> Agregar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="text-align: center;">
+            <a href="{{ url_for('suplementos') }}" class="btn-view-all">
+                Explorar Toda la Tienda <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- SECCIÓN 3: ADOPCIONES DE GATITOS -->
+    <section id="adopciones-destacadas" class="content-section">
+        <div class="section-header-wrap">
+            <span class="section-tag">Adopciones Responsables</span>
+            <h2>🐾 Michis en Busca de un Hogar</h2>
+            <p>Cada uno de nuestros gatos residentes tiene una historia de superación. Están completamente vacunados, desparasitados y listos para llenar tu casa de amor.</p>
+        </div>
+
+        <div class="cards-grid">
             {% for gato in gatos %}
-            <div class="gato">
-                <img src="{{ gato.imagenUrl }}" alt="{{ gato.nombre }}">
-                <div class="text-gato">
+            <div class="custom-card gato" data-id="{{ gato.id }}">
+                <div class="card-img-wrap">
+                    <span class="card-badge badge-adopt"><i class="bi bi-heart-fill"></i> En Adopción</span>
+                    <img src="{{ gato.imagenUrl }}" alt="{{ gato.nombre }}" loading="lazy" onerror="this.src='/static/Imagenes/Adopciones/Chetto.jpg'">
+                </div>
+                <div class="card-body">
                     <h3>{{ gato.nombre }}</h3>
-                    <p>{{ gato.descripcion }}</p>
-                    <a href="#" class="Adoptar btn-1" data-id="{{ gato.id }}" data-nombre="{{ gato.nombre }}">Adoptar</a>
+                    <p class="card-desc">{{ gato.descripcion }}</p>
+                    <div class="card-meta-row">
+                        <span class="card-age-tag">
+                            <i class="bi bi-calendar3"></i> 
+                            {% if gato.edad_meses >= 12 %}
+                                {{ (gato.edad_meses // 12) }} año{% if (gato.edad_meses // 12) > 1 %}s{% endif %}
+                            {% else %}
+                                {{ gato.edad_meses }} meses
+                            {% endif %}
+                        </span>
+                        <button class="btn-adopt Adoptar" 
+                                data-id="{{ gato.id }}" 
+                                data-nombre="{{ gato.nombre }}"
+                                data-imagen="{{ gato.imagenUrl }}"
+                                data-edad="{{ gato.edad_meses }}">
+                            <i class="bi bi-heart"></i> Adoptar
+                        </button>
+                    </div>
                 </div>
             </div>
             {% endfor %}
-        </section>
-        <a class="ver-menu" href="{{ url_for('adopciones') }}">TODOS LOS GATITOS</a>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="{{ url_for('adopciones') }}" class="btn-view-all">
+                Ver Todos los Gatitos en Adopción <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
     </section>
-    
-    <section id="quienes-somos" class="content-section">
-        <h2>Acerca de Nosotros</h2>
-        <p>Nuestra misión es combinar el amor por el café con el bienestar animal.</p>
+
+    <!-- SECCIÓN 4: REGLAS DEL CAT CAFÉ -->
+    <section class="content-section">
+        <div class="section-header-wrap">
+            <span class="section-tag">Convivencia Felina</span>
+            <h2>🐾 Reglas de Oro en Catfetería</h2>
+            <p>Para garantizar el bienestar y la tranquilidad de nuestros mininos, te invitamos a seguir estas pautas:</p>
+        </div>
+
+        <div class="rules-grid">
+            <div class="rule-box">
+                <i class="bi bi-hand-thumbs-up rule-icon"></i>
+                <h4>Manitas Limpias</h4>
+                <p>Desinfecta tus manos con nuestro gel antibacterial antes y después de acariciar a los gatos.</p>
+            </div>
+            <div class="rule-box">
+                <i class="bi bi-moon-stars rule-icon"></i>
+                <h4>Respeta sus Siestas</h4>
+                <p>Si un gatito está durmiendo, por favor no lo despiertes ni lo cargues bruscamente.</p>
+            </div>
+            <div class="rule-box">
+                <i class="bi bi-camera rule-icon"></i>
+                <h4>Fotos sin Flash</h4>
+                <p>¡Captura todos los recuerdos que quieras! Pero asegúrate de apagar el flash para no dañar sus ojitos.</p>
+            </div>
+            <div class="rule-box">
+                <i class="bi bi-cup-hot rule-icon"></i>
+                <h4>Solo Comida Apta</h4>
+                <p>Nuestra comida y café es para humanos. Si deseas consentirlos, pregúntanos por snacks felinos autorizados.</p>
+            </div>
+        </div>
     </section>
+
+    <!-- SECCIÓN 5: ACERCA DE NOSOTROS -->
+    <section class="content-section">
+        <div class="about-grid">
+            <div class="about-text">
+                <span class="section-tag">Nuestra Misión</span>
+                <h3>Un refugio de paz, café artesanal y segundas oportunidades</h3>
+                <p>En Catfetería creemos que el café tiene el poder de unir a las personas, y los gatos tienen el don de sanar el alma. Nacimos con el sueño de crear un espacio donde puedas desconectarte del estrés diario, saborear un espresso de alta calidad y conectar de corazón con animales rescatados.</p>
+                <p>Cada taza de café consumida y cada producto adquirido en nuestra tienda ayuda directamente a financiar tratamientos veterinarios, alimentación y rescate de gatitos en situación de abandono.</p>
+                
+                <div class="about-highlights">
+                    <div class="about-highlight-item">
+                        <i class="bi bi-check2-circle"></i> Granos de Especialidad
+                    </div>
+                    <div class="about-highlight-item">
+                        <i class="bi bi-check2-circle"></i> Protocolo Veterinario 100%
+                    </div>
+                    <div class="about-highlight-item">
+                        <i class="bi bi-check2-circle"></i> Ambiente Seguro y Tranquilo
+                    </div>
+                    <div class="about-highlight-item">
+                        <i class="bi bi-check2-circle"></i> Rescates Avalados
+                    </div>
+                </div>
+            </div>
+            <div class="about-img-wrap">
+                <img src="{{ url_for('static', filename='Imagenes/Menu y Promos/catcafe_interior.jpg') }}" alt="Ambiente de Catfetería en Quito">
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<!-- Modal de Adopciones -->
+<div class="checkout-modal" id="adoption-modal">
+    <div class="checkout-content">
+        <span class="close-checkout" id="close-adoption">&times;</span>
+        
+        <div id="adoption-form">
+            <h2>🐈 Formulario de Adopción</h2>
+            <p class="modal-sub" id="adoption-title">¿Deseas postular para adoptar a este michi?</p>
+
+            <div class="modal-cat-preview">
+                <img id="adoption-cat-avatar" src="{{ url_for('static', filename='Imagenes/Adopciones/Chetto.jpg') }}" alt="Gatito">
+                <div>
+                    <h4 id="adoption-cat-name-span">Michi</h4>
+                    <p>En Catfetería &middot; Rescatado con amor</p>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="adopt-name">Tu Nombre Completo:</label>
+                <input type="text" id="adopt-name" placeholder="Ej: Juan Pérez" required>
+            </div>
+
+            <div class="form-group">
+                <label for="adopt-phone">Número de WhatsApp (10 dígitos):</label>
+                <input type="tel" id="adopt-phone" placeholder="Ej: 0991234567" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="adopt-email">Correo Electrónico:</label>
+                <input type="email" id="adopt-email" placeholder="ejemplo@correo.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="adopt-reason">Cuéntanos sobre tu hogar (¿Tienes otras mascotas o niños?):</label>
+                <textarea id="adopt-reason" rows="3" placeholder="Queremos asegurar la mejor química entre tú y el michi..."></textarea>
+            </div>
+            
+            <button class="btn-confirm" id="btn-send-adoption">
+                <i class="bi bi-whatsapp"></i> Enviar Solicitud por WhatsApp
+            </button>
+        </div>
+
+        <div id="adoption-success" style="display: none; text-align: center; padding: 25px 0;">
+            <i class="bi bi-heart-fill" style="font-size: 3.5rem; color: #e05666;"></i>
+            <h3 style="margin-top: 15px; color: var(--primary-color);">¡Solicitud Generada!</h3>
+            <p style="color: var(--text-secondary); margin: 10px 0 20px 0;">Te redirigimos a WhatsApp para coordinar tu entrevista y agendar tu visita al Cat Café.</p>
+            <button class="btn-primary" id="btn-close-adoption-success" style="width: 100%; justify-content: center;">Cerrar</button>
+        </div>
+    </div>
 </div>
 {% endblock %}
 

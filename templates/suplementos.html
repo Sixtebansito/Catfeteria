@@ -1,26 +1,83 @@
 {% extends 'base.html' %}
 
-{% block title %}Catfetería | Suplementos 💊{% endblock %}
+{% block title %}Catfetería | Pet Boutique & Suplementos 💊🛍️{% endblock %}
 
 {% block content %}
-<div class="section-container" style="margin-top: 100px;">
-    <section id="suplementos" class="content-section">
-        <h2>💊 Tienda de Suplementos y Accesorios</h2>
-        <p>Todo para la salud y felicidad de tu minino.</p>
-        
-        <section id="suplementos-gatos" class="suplementos-gatos">
+<div class="section-container" style="margin-top: 40px;">
+    <section class="content-section">
+        <div class="section-header-wrap">
+            <span class="section-tag">Pet Boutique & Salud Felina</span>
+            <h2>🛍️ Tienda y Suplementos para Gatos</h2>
+            <p>Seleccionamos únicamente las mejores marcas de nutrición, arenas sanitarias aglomerantes, suplementos veterinarios y juguetes estimulantes para tu minino.</p>
+        </div>
+
+        <!-- Buscador en tiempo real -->
+        <div class="search-box-wrap">
+            <i class="bi bi-search"></i>
+            <input type="text" id="product-search" class="search-input" placeholder="Buscar arena, comida, juguetes, vitaminas...">
+        </div>
+
+        <!-- Filtros de categoría -->
+        <div class="filter-tabs-bar">
+            <button class="filter-tab-btn active" data-filter="all"><i class="bi bi-grid-fill"></i> Todos los Productos</button>
+            <button class="filter-tab-btn" data-filter="suplemento"><i class="bi bi-capsule-pill"></i> Nutrición y Salud</button>
+            <button class="filter-tab-btn" data-filter="accesorio"><i class="bi bi-controller"></i> Juguetes y Accesorios</button>
+        </div>
+
+        <!-- Grid de Productos -->
+        <div class="cards-grid">
             {% for item in suplementos %}
-            <div class="suplemento">
-                <img src="{{ item.imagenUrl }}" alt="{{ item.titulo }}">
-                <div class="text-suplemento">
+            <div class="custom-card" data-id="{{ item.id }}" data-categoria="{{ item.categoria }}">
+                <div class="card-img-wrap">
+                    {% if item.categoria == 'accesorio' %}
+                        <span class="card-badge badge-promo">🎾 Juguete / Confort</span>
+                    {% else %}
+                        <span class="card-badge">🌿 Nutrición & Salud</span>
+                    {% endif %}
+                    <img src="{{ item.imagenUrl }}" alt="{{ item.titulo }}" loading="lazy" onerror="this.src='/static/Imagenes/Suplementos/arena.jpg'">
+                </div>
+                <div class="card-body">
                     <h3>{{ item.titulo }}</h3>
-                    <p>{{ item.descripcion }}</p>
-                    <p class="precio">${{ "%.2f"|format(item.precio) }}</p>
-                    <a href="#" class="agregar-carrito btn-2" data-id="{{ item.id }}" data-nombre="{{ item.titulo }}" data-precio="{{ item.precio }}">Agregar al carrito</a>
+                    <p class="card-desc">{{ item.descripcion }}</p>
+                    <div class="card-meta-row">
+                        <span class="card-price">${{ "%.2f"|format(item.precio) }}</span>
+                        <button class="btn-cart agregar-carrito" 
+                                data-id="{{ item.id }}" 
+                                data-nombre="{{ item.titulo }}" 
+                                data-precio="{{ item.precio }}"
+                                data-imagen="{{ item.imagenUrl }}">
+                            <i class="bi bi-bag-plus"></i> Agregar
+                        </button>
+                    </div>
                 </div>
             </div>
             {% endfor %}
-        </section>
+        </div>
+
+        <!-- Banner de Garantía y Envíos -->
+        <div style="background: linear-gradient(135deg, var(--bg-cream) 0%, #ffffff 100%); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 25px 30px; margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; text-align: left;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <i class="bi bi-truck" style="font-size: 2.2rem; color: var(--caramel);"></i>
+                <div>
+                    <h5 style="color: var(--primary-color); font-size: 0.95rem; margin-bottom: 2px;">Envíos a todo el Ecuador</h5>
+                    <p style="color: var(--text-secondary); font-size: 0.8rem; margin: 0;">Entregas en Quito en 24h y a nivel nacional.</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <i class="bi bi-shield-check" style="font-size: 2.2rem; color: #2ecc71;"></i>
+                <div>
+                    <h5 style="color: var(--primary-color); font-size: 0.95rem; margin-bottom: 2px;">Calidad 100% Garantizada</h5>
+                    <p style="color: var(--text-secondary); font-size: 0.8rem; margin: 0;">Marcas certificadas por veterinarios.</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <i class="bi bi-whatsapp" style="font-size: 2.2rem; color: #25d366;"></i>
+                <div>
+                    <h5 style="color: var(--primary-color); font-size: 0.95rem; margin-bottom: 2px;">Asesoría Personalizada</h5>
+                    <p style="color: var(--text-secondary); font-size: 0.8rem; margin: 0;">Te ayudamos a elegir lo mejor para tu gato.</p>
+                </div>
+            </div>
+        </div>
     </section>
 </div>
 {% endblock %}
